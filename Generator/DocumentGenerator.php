@@ -11,7 +11,7 @@
 
 namespace ONGR\ElasticsearchBundle\Generator;
 
-use Doctrine\Common\Inflector\Inflector;
+use Doctrine\Inflector\InflectorFactory;
 
 /**
  * Document Generator
@@ -255,7 +255,8 @@ public function __construct()
             $column[] = 'options={' . $metadata['property_options'] . '}';
         }
 
-        $lines[] = $this->spaces . ' * @ES\\' . Inflector::classify($metadata['annotation'])
+        $inflector = InflectorFactory::create()->build();
+        $lines[] = $this->spaces . ' * @ES\\' . $inflector->classify($metadata['annotation'])
             . '(' . implode(', ', $column) . ')';
 
         $lines[] = $this->spaces . ' */';
@@ -272,11 +273,13 @@ public function __construct()
      */
     private function generateDocumentDocBlock(array $metadata)
     {
+
+        $inflector = InflectorFactory::create()->build();
         return str_replace(
             ['<className>', '<annotation>', '<options>'],
             [
                 $this->getClassName($metadata),
-                Inflector::classify($metadata['annotation']),
+                $inflector->classify($metadata['annotation']),
                 $this->getAnnotationOptions($metadata),
             ],
             '/**
@@ -331,7 +334,8 @@ public function __construct()
             return '';
         }
 
-        if ($metadata['type'] === Inflector::tableize($this->getClassName($metadata))) {
+        $inflector = InflectorFactory::create()->build();
+        if ($metadata['type'] === $inflector->tableize($this->getClassName($metadata))) {
             return '';
         }
 
